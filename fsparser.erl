@@ -79,7 +79,7 @@ parse_flight(Flight, Tree) ->
 	case StatusString of
 		[] -> error;
 		__ ->
-			{match, [Status]} = re:run(StatusString, "\r\n *([A-Za-z]+)", [{capture, [1], binary}]),
+			{match, [Status]} = re:run(StatusString, "\r\n *([A-Za-z]+ *[A-Za-z]*)", [{capture, [1], binary}]),
 			[Airline] = mochiweb_xpath:execute("//div[@class='content']/div[@class='uiComponent'][1]/h2/a/text()",Tree),
 			{_Airline, Number} = Flight#flight.flight,
 			parse_flight_component(Flight#flight{flight = {Airline, Number}, status = Status}, mochiweb_xpath:execute("//div[@class='content']/div[@class='uiComponent']",Tree))
