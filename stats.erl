@@ -12,11 +12,25 @@
 %% ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 -record(airport, {iata, name, address, city, state, country, time, date, zone}).
--record(flight, {flight, date}).
+-record(flight, {flight, date, status}).
 
-%% ----------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-parse_flight(Flight, _Tree) -> io:format("Flight = ~p~n", [Flight]).
+parse_flight_attr(Flight, _Tree) ->
+	Flight.
+
+%% ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+parse_flight(Flight, Tree) -> 
+	StatusString = mochiweb_xpath:execute("//div[@class='content']/div[@class='uiComponent'][1]/strong/text()",Tree),
+	case StatusString of
+		[] -> error;
+		__ ->
+			{match, [Status]} = re:run(StatusString, "\r\n *([A-Za-z]+)", [{capture, [1], binary}]),
+			[Airline] = mochiweb_xpath:execute("//div[@class='content']/div[@class='uiComponent'][1]/h2/a/text()",Tree),
+			{_Airline, Number} = Flight#flight.flight,
+			parse_flight_attr(Flight#flight{flight = {Airline, Number}, status = Status}, mochiweb_xpath:execute("//div[@class='content']/div[@class='uiComponent']",Tree))
+	end.
 
 %% ----------------------------------------------------------------------------------------------
 
@@ -36,7 +50,7 @@ search_flight(Flight, Search) ->
 	Tree = mochiweb_html:parse(re:replace(HTML, "(\\:\\&nbsp\\;)*", "", [{return, list}, global])),
 	Segments = mochiweb_xpath:execute("//div[@class='listItem']/a[@href]/@href",Tree),
 	case length(Segments) of
-		0 -> parse_flight(Flight, Tree);
+		0 -> io:format("Result = ~p~n", [parse_flight(Flight, Tree)]);
 		_ -> search_segments(Flight, Segments)
 	end.
 
