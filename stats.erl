@@ -97,7 +97,7 @@ universal_seconds(Airport) ->
 
 airport(Iata) ->
 	inets:start(),
-	Search = list:concat([?Search, Iata]),
+	Search = lists:concat([?Search, Iata]),
 	{ok, {_Status, _Header, HTML}} = httpc:request(Search),
 	Tree = mochiweb_html:parse(re:replace(HTML, "(\\:\\&nbsp\\;)*", "", [{return, list}, global])),
 	List = mochiweb_xpath:execute("//div[@class='uiComponent'][1]/table/tr/td/text()",Tree),
