@@ -103,13 +103,21 @@ search_flight(Flight, Search) ->
 	Tree = mochiweb_html:parse(re:replace(HTML, "(\\:\\&nbsp\\;)*", "", [{return, list}, global])),
 	Segments = mochiweb_xpath:execute("//div[@class='listItem']/a[@href]/@href",Tree),
 	case length(Segments) of
-		0 -> io:format("~p~n", [parse_flight(Flight, Tree)]);
-		_ -> search_segments(Flight, Segments)
+		0 -> 
+			io:format("~p~n", [parse_flight(Flight, Tree)]);
+			% Data = parse_flight(Flight, Tree),
+			% {Airline, FlightNumber} = Flight#flight.flight,
+			% FlightName = list_to_binary(binary_to_list(Airline) ++ integer_to_list(FlightNumber)),
+			% Date = Flight#flight.date,
+			% radar:flight_statistics_append(FlightName, Date, Data);
+		_ -> 
+			search_segments(Flight, Segments)
 	end.
 
 %% ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 flight(Flight, Date) ->
+	code:add_path("./ebin"),
 	inets:start(),
 	{match, [Airline, Number]} = re:run(Flight, "([A-Za-z]+)([0-9]+)", [{capture, [1,2], list}]),
 	FlightStruct = {list_to_binary(Airline), list_to_integer(Number)},
