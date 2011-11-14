@@ -1,0 +1,12 @@
+{application, triplooker,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { triplooker_app, []}},
+  {env, []}
+ ]}.
